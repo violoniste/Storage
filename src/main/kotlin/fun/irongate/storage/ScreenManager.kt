@@ -15,7 +15,7 @@ class ScreenManager : Application() {
     companion object {
         private const val MIN_WIDTH = 1024.0
         private const val MIN_HEIGHT = 768.0
-        private const val EDITOR_SCREEN_VIEW = "editor_screen.fxml"
+        private const val STATUS_SCREEN_VIEW = "status_screen.fxml"
         var currentScreen: ScreenController? = null
         private var root = StackPane()
         private lateinit var scene: Scene
@@ -27,6 +27,7 @@ class ScreenManager : Application() {
             currentScreen = screen
         }
 
+        @Suppress("SameParameterValue")
         private fun openScreen(srcName: String) {
             Platform.runLater {
                 closeScreen()
@@ -39,7 +40,7 @@ class ScreenManager : Application() {
         }
 
         fun openEditorScreen() {
-            openScreen(EDITOR_SCREEN_VIEW)
+            openScreen(STATUS_SCREEN_VIEW)
         }
 
         fun onScreenInitialized() {
@@ -62,7 +63,7 @@ class ScreenManager : Application() {
     override fun start(stage: Stage) {
         val scene = Scene(root, MIN_WIDTH, MIN_HEIGHT, false, SceneAntialiasing.BALANCED)
         ScreenManager.scene = scene
-        stage.title = "Editor PC"
+        stage.title = "Storage recover"
         stage.scene = scene
         stage.show()
 
@@ -71,11 +72,9 @@ class ScreenManager : Application() {
 
         val namedParameters = parameters.named
 
+        println("ScreenManager.start() $namedParameters")
+
 //        ConstantUpdater.updateConstant(namedParameters["ids"], namedParameters["strings"], namedParameters["images"])
-//
-//        SolidsParser.solidsPath = namedParameters["solids"]
-//        PhysicsParser.physicsPath = namedParameters["physics"]
-//        EditorScreenController.imgPath = namedParameters["images"]
 
         openEditorScreen()
 

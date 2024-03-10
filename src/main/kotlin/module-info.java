@@ -5,6 +5,7 @@ module fun.irongate.storage {
     requires kotlinx.coroutines.core.jvm;
 
 
+    opens fun.irongate.storage.controllers to javafx.fxml;
     opens fun.irongate.storage to javafx.fxml;
     exports fun.irongate.storage;
 }
