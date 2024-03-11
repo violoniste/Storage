@@ -28,5 +28,5 @@ abstract class ScreenController : CoroutineScope {
         destroyed = true
     }
 
-    abstract fun onFrame()
+    open fun onFrame() {}
 }

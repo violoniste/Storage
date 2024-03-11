@@ -64,6 +64,8 @@ class ScreenManager : Application() {
         val scene = Scene(root, MIN_WIDTH, MIN_HEIGHT, false, SceneAntialiasing.BALANCED)
         ScreenManager.scene = scene
         stage.title = "Storage recover"
+        stage.minHeight = MIN_HEIGHT
+        stage.minWidth = MIN_WIDTH
         stage.scene = scene
         stage.show()
 
@@ -71,10 +73,8 @@ class ScreenManager : Application() {
         scene.heightProperty().addListener { _, _, _ -> onResize() }
 
         val namedParameters = parameters.named
-
-        println("ScreenManager.start() $namedParameters")
-
-//        ConstantUpdater.updateConstant(namedParameters["ids"], namedParameters["strings"], namedParameters["images"])
+        GlobalParams.storagePath = namedParameters["storage"] ?: ""
+        GlobalParams.copyPath = namedParameters["copy"] ?: ""
 
         openEditorScreen()
 
@@ -84,6 +84,8 @@ class ScreenManager : Application() {
             }
         }
         onFrameTimer?.start()
+
+//        stage.isIconified = true
     }
 
     override fun stop() {
