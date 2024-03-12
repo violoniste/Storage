@@ -1,16 +1,19 @@
 package `fun`.irongate.storage.controllers
 
-import `fun`.irongate.storage.DiskAnalyzer
 import `fun`.irongate.storage.GlobalParams
+import `fun`.irongate.storage.model.Copier
 import `fun`.irongate.storage.utils.StringUtils
 import javafx.fxml.FXML
 import javafx.scene.control.ProgressBar
 import javafx.scene.control.Label
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.io.File
 
 class StatusScreenController : ScreenController() {
+    companion object {
+        const val RED_PROGRESS_BAR_STYLE = "-fx-accent: #FF0000"
+        const val GREEN_PROGRESS_BAR_STYLE = "-fx-accent: #00CC00"
+    }
+
     @FXML
     private lateinit var labelDiskSpace: Label
 
@@ -18,30 +21,39 @@ class StatusScreenController : ScreenController() {
     private lateinit var labelStatus: Label
 
     @FXML
-    private lateinit var labelProgress: Label
+    private lateinit var labelTotalProgress: Label
+
+    @FXML
+    private lateinit var labelFileProgress: Label
 
     @FXML
     private lateinit var progressBarDiskSpace: ProgressBar
 
     @FXML
-    private lateinit var progressBarProgress: ProgressBar
+    private lateinit var progressBarTotalProgress: ProgressBar
+
+    @FXML
+    private lateinit var progressBarFileProgress: ProgressBar
 
     private var totalSpace: Long = 0
     private var usableSpace: Long = 0
-    private var totalFilesCount: Long = 0
-    private var totalFilesSize: Long = 0
 
     override fun initialize() {
         super.initialize()
 
+        progressBarTotalProgress.style = GREEN_PROGRESS_BAR_STYLE
+        progressBarFileProgress.style = GREEN_PROGRESS_BAR_STYLE
+
         checkDisks()
+
+        Copier.start()
     }
 
     private fun checkDisks() {
         val storage = File(GlobalParams.storagePath)
-        val copy = File(GlobalParams.copyPath)
+        val mirror = File(GlobalParams.mirrorPath)
 
-        if (!storage.exists() || !storage.isDirectory || !copy.exists() || !copy.isDirectory) {
+        if (!storage.exists() || !storage.isDirectory || !mirror.exists() || !mirror.isDirectory) {
             progressBarDiskSpace.progress = 1.0
             progressBarDiskSpace.style = "-fx-accent: #FF0000"
             labelDiskSpace.text = "Один из дисков отсутствует!!!"
@@ -52,45 +64,25 @@ class StatusScreenController : ScreenController() {
         usableSpace = storage.usableSpace
 
         progressBarDiskSpace.progress = 1 - usableSpace.toDouble() / totalSpace.toDouble()
-        progressBarDiskSpace.style = "-fx-accent: #00FF00"
+        progressBarDiskSpace.style = GREEN_PROGRESS_BAR_STYLE
 
-        labelDiskSpace.text = "${StringUtils.sizeToString(usableSpace)} из ${StringUtils.sizeToString(totalSpace)} свободно"
-
-        launch(Dispatchers.IO) {
-            copyFiles(storage)
-        }
-    }
-
-    private fun copyFiles(storage: File) {
-        labelStatus.text = "Копирование"
-        progressBarProgress.progress = 0.0
-        progressBarProgress.style = "-fx-accent: #00FF00"
-
-        copyDir(storage)
-    }
-
-    private fun copyDir(dir: File) {
-        dir.listFiles()?.forEach { file ->
-            if (file.isDirectory)
-                copyDir(file)
-            else {
-                copyFile(file)
-                totalFilesCount++
-                totalFilesSize += file.length()
-            }
-        }
-    }
-
-    private fun copyFile(file: File) {
-
+        labelDiskSpace.text =
+            "${StringUtils.sizeToString(usableSpace)} из ${StringUtils.sizeToString(totalSpace)} свободно"
     }
 
     override fun onFrame() {
         super.onFrame()
 
-        labelProgress.text = "Файлов: $totalFilesCount ${StringUtils.sizeToString(totalFilesSize)}"
-        val p = totalFilesSize.toDouble() / (totalSpace - usableSpace)
-        progressBarProgress.progress = p
-        println("StatusScreenController.onFrame() $p")
+        labelStatus.text = when (Copier.status) {
+            Copier.Status.IDLE -> "Ожидание"
+            Copier.Status.IN_PROGRESS -> "Копирование"
+            Copier.Status.DONE -> "Завершено"
+        }
+
+        progressBarTotalProgress.progress = Copier.totalProgress
+        labelTotalProgress.text = "Пропущено: ${Copier.skippedFilesCount} Скопировано: ${Copier.copiedFilesCount} Размером: ${StringUtils.sizeToString(Copier.totalFilesSize)}"
+
+        progressBarFileProgress.progress = Copier.fileProgress
+        labelFileProgress.text = Copier.currentFile
     }
 }

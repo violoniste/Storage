@@ -13,8 +13,8 @@ import javafx.stage.Stage
 
 class ScreenManager : Application() {
     companion object {
-        private const val MIN_WIDTH = 1024.0
-        private const val MIN_HEIGHT = 768.0
+        private const val MIN_WIDTH = 640.0
+        private const val MIN_HEIGHT = 480.0
         private const val STATUS_SCREEN_VIEW = "status_screen.fxml"
         var currentScreen: ScreenController? = null
         private var root = StackPane()
@@ -74,7 +74,7 @@ class ScreenManager : Application() {
 
         val namedParameters = parameters.named
         GlobalParams.storagePath = namedParameters["storage"] ?: ""
-        GlobalParams.copyPath = namedParameters["copy"] ?: ""
+        GlobalParams.mirrorPath = namedParameters["mirror"] ?: ""
 
         openEditorScreen()
 

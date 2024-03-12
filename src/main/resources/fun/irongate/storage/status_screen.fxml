@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane minHeight="480.0" minWidth="640.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/19" fx:controller="fun.irongate.storage.controllers.StatusScreenController">
+<AnchorPane minHeight="480.0" minWidth="640.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fun.irongate.storage.controllers.StatusScreenController">
    <children>
       <ProgressBar fx:id="progressBarDiskSpace" prefHeight="32.0" progress="0.0" AnchorPane.leftAnchor="16.0" AnchorPane.rightAnchor="16.0" AnchorPane.topAnchor="16.0" />
       <Label fx:id="labelDiskSpace" layoutX="16.0" layoutY="48.0" prefWidth="612.0" text="Свободно" AnchorPane.leftAnchor="16.0" AnchorPane.rightAnchor="16.0">
@@ -13,13 +13,19 @@
             <Font name="Roboto" size="12.0" />
          </font>
       </Label>
-      <ProgressBar fx:id="progressBarProgress" layoutX="14.0" layoutY="150.0" prefHeight="32.0" prefWidth="142.0" progress="0.0" AnchorPane.leftAnchor="16.0" AnchorPane.rightAnchor="16.0" />
+      <ProgressBar fx:id="progressBarTotalProgress" layoutX="14.0" layoutY="150.0" prefHeight="32.0" prefWidth="142.0" progress="0.0" AnchorPane.leftAnchor="16.0" AnchorPane.rightAnchor="16.0" />
       <Label fx:id="labelStatus" layoutX="16.0" layoutY="132.0" prefWidth="612.0" text="Копирование">
          <font>
             <Font name="Roboto" size="12.0" />
          </font>
       </Label>
-      <Label fx:id="labelProgress" layoutX="16.0" layoutY="182.0" prefWidth="612.0" text="Всего">
+      <Label fx:id="labelTotalProgress" layoutX="16.0" layoutY="182.0" prefWidth="612.0" text="Всего">
+         <font>
+            <Font name="Roboto" size="12.0" />
+         </font>
+      </Label>
+      <ProgressBar fx:id="progressBarFileProgress" layoutX="16.0" layoutY="208.0" prefHeight="32.0" prefWidth="142.0" progress="0.0" AnchorPane.leftAnchor="16.0" AnchorPane.rightAnchor="16.0" />
+      <Label fx:id="labelFileProgress" layoutX="16.0" layoutY="240.0" prefWidth="612.0" text="Всего" AnchorPane.leftAnchor="16.0" AnchorPane.rightAnchor="16.0">
          <font>
             <Font name="Roboto" size="12.0" />
          </font>

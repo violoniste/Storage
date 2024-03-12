@@ -1,4 +1,4 @@
-package `fun`.irongate.storage
+package `fun`.irongate.storage.model
 
 import java.io.File
 
