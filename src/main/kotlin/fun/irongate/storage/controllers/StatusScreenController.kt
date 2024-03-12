@@ -3,9 +3,11 @@ package `fun`.irongate.storage.controllers
 import `fun`.irongate.storage.GlobalParams
 import `fun`.irongate.storage.model.Copier
 import `fun`.irongate.storage.utils.StringUtils
+import javafx.event.ActionEvent
 import javafx.fxml.FXML
-import javafx.scene.control.ProgressBar
+import javafx.scene.control.Button
 import javafx.scene.control.Label
+import javafx.scene.control.ProgressBar
 import java.io.File
 
 class StatusScreenController : ScreenController() {
@@ -15,7 +17,13 @@ class StatusScreenController : ScreenController() {
     }
 
     @FXML
+    private lateinit var btnStart: Button
+
+    @FXML
     private lateinit var labelDiskSpace: Label
+
+    @FXML
+    private lateinit var labelFileProgress: Label
 
     @FXML
     private lateinit var labelStatus: Label
@@ -24,16 +32,13 @@ class StatusScreenController : ScreenController() {
     private lateinit var labelTotalProgress: Label
 
     @FXML
-    private lateinit var labelFileProgress: Label
-
-    @FXML
     private lateinit var progressBarDiskSpace: ProgressBar
 
     @FXML
-    private lateinit var progressBarTotalProgress: ProgressBar
+    private lateinit var progressBarFileProgress: ProgressBar
 
     @FXML
-    private lateinit var progressBarFileProgress: ProgressBar
+    private lateinit var progressBarTotalProgress: ProgressBar
 
     private var totalSpace: Long = 0
     private var usableSpace: Long = 0
@@ -45,8 +50,6 @@ class StatusScreenController : ScreenController() {
         progressBarFileProgress.style = GREEN_PROGRESS_BAR_STYLE
 
         checkDisks()
-
-        Copier.start()
     }
 
     private fun checkDisks() {
@@ -77,6 +80,14 @@ class StatusScreenController : ScreenController() {
             Copier.Status.IDLE -> "Ожидание"
             Copier.Status.IN_PROGRESS -> "Копирование"
             Copier.Status.DONE -> "Завершено"
+            Copier.Status.INTERRUPTED -> "Прервано"
+        }
+
+        btnStart.text = when (Copier.status) {
+            Copier.Status.IDLE -> "Запуск копирования"
+            Copier.Status.IN_PROGRESS -> "Прервать копирование!"
+            Copier.Status.DONE -> "Запуск копирования"
+            Copier.Status.INTERRUPTED -> "Запуск копирования"
         }
 
         progressBarTotalProgress.progress = Copier.totalProgress
@@ -84,5 +95,13 @@ class StatusScreenController : ScreenController() {
 
         progressBarFileProgress.progress = Copier.fileProgress
         labelFileProgress.text = Copier.currentFile
+    }
+
+    @FXML
+    fun onStartClick() {
+        if (Copier.status != Copier.Status.IN_PROGRESS)
+            Copier.start()
+        else
+            Copier.stop()
     }
 }

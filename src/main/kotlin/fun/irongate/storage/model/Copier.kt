@@ -31,22 +31,28 @@ object Copier : CoroutineScope {
     var currentFile = ""
         private set
 
-    private lateinit var storageDir: File
-    private lateinit var mirrorDir: File
     private var totalSpace: Long = 0
     private var usableSpace: Long = 0
 
     fun start() {
         launch(Dispatchers.IO) {
             status = Status.IN_PROGRESS
+            totalProgress = 0.0
+            fileProgress = 0.0
+            copiedFilesCount = 0
+            skippedFilesCount = 0
+            totalFilesSize = 0L
+            currentFile = ""
 
-            storageDir = File(GlobalParams.storagePath)
-            mirrorDir = File(GlobalParams.mirrorPath)
+            val storageDir = File(GlobalParams.storagePath)
 
             totalSpace = storageDir.totalSpace
             usableSpace = storageDir.usableSpace
 
             copyDir(storageDir)
+
+            if (status == Status.INTERRUPTED)
+                return@launch
 
             totalProgress = 1.0
             status = Status.DONE
@@ -54,6 +60,9 @@ object Copier : CoroutineScope {
     }
 
     private fun copyDir(dir: File) {
+        if (status == Status.INTERRUPTED)
+            return
+
         dir.listFiles()?.forEach { file ->
             if (file.isDirectory) {
                 val mirrorDir = getMirrorFile(file)
@@ -72,6 +81,9 @@ object Copier : CoroutineScope {
     }
 
     private fun copyFile(file: File) {
+        if (status == Status.INTERRUPTED)
+            return
+
         currentFile = file.absolutePath
         val mirrorFile = getMirrorFile(file)
 
@@ -89,6 +101,9 @@ object Copier : CoroutineScope {
             val fileLength = file.length()
             var sum = 0L
             while ((inputStream.read(buffer).also { length = it }) > 0) {
+                if (status == Status.INTERRUPTED)
+                    return
+
                 outputStream.write(buffer, 0, length)
                 sum += length
                 fileProgress = sum.toDouble() / fileLength.toDouble()
@@ -113,5 +128,9 @@ object Copier : CoroutineScope {
         return File(destination)
     }
 
-    enum class Status { IDLE, IN_PROGRESS, DONE }
+    fun stop() {
+        status = Status.INTERRUPTED
+    }
+
+    enum class Status { IDLE, IN_PROGRESS, INTERRUPTED, DONE }
 }
