@@ -3,7 +3,6 @@ package `fun`.irongate.storage.controllers
 import `fun`.irongate.storage.GlobalParams
 import `fun`.irongate.storage.model.Copier
 import `fun`.irongate.storage.utils.StringUtils
-import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.scene.control.Button
 import javafx.scene.control.Label
@@ -78,20 +77,22 @@ class StatusScreenController : ScreenController() {
 
         labelStatus.text = when (Copier.status) {
             Copier.Status.IDLE -> "Ожидание"
-            Copier.Status.IN_PROGRESS -> "Копирование"
+            Copier.Status.COPYING -> "Копирование"
+            Copier.Status.DELETION -> "Удаление"
             Copier.Status.DONE -> "Завершено"
             Copier.Status.INTERRUPTED -> "Прервано"
         }
 
         btnStart.text = when (Copier.status) {
             Copier.Status.IDLE -> "Запуск копирования"
-            Copier.Status.IN_PROGRESS -> "Прервать копирование!"
+            Copier.Status.COPYING -> "Прервать копирование!"
+            Copier.Status.DELETION -> "Прервать удаление!"
             Copier.Status.DONE -> "Запуск копирования"
             Copier.Status.INTERRUPTED -> "Запуск копирования"
         }
 
         progressBarTotalProgress.progress = Copier.totalProgress
-        labelTotalProgress.text = "Пропущено: ${Copier.skippedFilesCount} Скопировано: ${Copier.copiedFilesCount} Размером: ${StringUtils.sizeToString(Copier.totalFilesSize)}"
+        labelTotalProgress.text = "Пропущено: ${Copier.skippedFilesCount} Скопировано: ${Copier.copiedFilesCount} Удалено: ${Copier.deletedFilesCount} Размером: ${StringUtils.sizeToString(Copier.totalFilesSize)}"
 
         progressBarFileProgress.progress = Copier.fileProgress
         labelFileProgress.text = Copier.currentFile
@@ -99,7 +100,7 @@ class StatusScreenController : ScreenController() {
 
     @FXML
     fun onStartClick() {
-        if (Copier.status != Copier.Status.IN_PROGRESS)
+        if (Copier.status != Copier.Status.COPYING)
             Copier.start()
         else
             Copier.stop()
