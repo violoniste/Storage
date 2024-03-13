@@ -4,7 +4,9 @@ import `fun`.irongate.storage.GlobalParams
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.*
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 
 
 object Copier : CoroutineScope {
@@ -84,13 +86,16 @@ object Copier : CoroutineScope {
         if (status == Status.INTERRUPTED)
             return
 
-        currentFile = file.absolutePath
+        currentFile = file.path
         val mirrorFile = getMirrorFile(file)
 
-        if (mirrorFile.exists() && mirrorFile.length() == file.length()) {
+        if (mirrorFile.exists() && mirrorFile.length() == file.length() && mirrorFile.isHidden == file.isHidden) {
             skippedFilesCount++
             return
         }
+
+        if (mirrorFile.exists())
+            mirrorFile.delete()
 
         val inputStream = FileInputStream(file)
         val outputStream = FileOutputStream(mirrorFile)
@@ -118,11 +123,15 @@ object Copier : CoroutineScope {
             outputStream.close()
         }
 
+        if (file.isHidden) {
+            Runtime.getRuntime().exec("attrib +H ${mirrorFile.path}").waitFor()
+        }
+
         copiedFilesCount++
     }
 
     private fun getMirrorFile(file: File): File {
-        val localPath = file.absolutePath.split(GlobalParams.storagePath)[1]
+        val localPath = file.path.split(GlobalParams.storagePath)[1]
         val destination = GlobalParams.mirrorPath + localPath
 
         return File(destination)
